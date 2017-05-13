@@ -111,13 +111,28 @@
         }
         var dom;
         if(cfg.el){
-            dom = q(cfg.el);
+            dom = q(cfg.el)[0];
         }
-        
+        if(dom instanceof Element){
+            dom.innerHTML = this.render(dom.innerHTML,cfg.data);
+        }
+    }
+    Vue.prototype.render = function(html,data){
+        console.log(html);
+        console.log(Object.prototype.toString.call(html));
+        var str = html.replace(/\{\{([\w\.]+)\}\}/g,function(match ,p1){
+            var pArr = p1.split('.'),tmp = data;
+            for(var i=0;i<pArr.length;i++){
+                tmp = tmp[pArr[i]];
+            }
+            return tmp.toString();
+        });
+        return str;
     }
 
     function q(el){
-        var selector = el.splice(0,1);
+        var selector = el.slice(0,1),
+            el = el.substring(1);
         var dom = [];
         if(selector == "#"){
             dom.push(document.getElementById(el));
@@ -128,6 +143,7 @@
         }else{
             dom.concat(document.getElementsByTagName(el));
         }
+        return dom;
     }
 
     global.Vue = Vue;
